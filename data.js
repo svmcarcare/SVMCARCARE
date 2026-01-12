@@ -1,4 +1,4 @@
-const SHEET_URL = "PASTE_YOUR_CSV_LINK_HERE";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8H-DC4LQVHXCafnvXSEKAUJmATXxiMt1oBq970MPdNNieJggl8hm1kC8qfTSwXLWw5trZ3BCYTSDD/pub?output=csv";
 
 let allCars = [];
 
@@ -90,3 +90,4 @@ document.getElementById("search").addEventListener("keyup", e => {
   );
   renderCars(filtered);
 });
+
