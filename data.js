@@ -5,22 +5,23 @@ let allCars = [];
 
 /* ---------- GOOGLE DRIVE HELPERS ---------- */
 
-// Image: Drive → direct view
-function fastDriveImage(link) {
+// Extract Drive file ID
+function getDriveId(link) {
   if (!link) return "";
   const match = link.match(/[-\w]{25,}/);
-  return match
-    ? `https://drive.google.com/uc?export=view&id=${match[0]}`
-    : "";
+  return match ? match[0] : "";
 }
 
-// Video: Drive → embed preview
-function driveVideoEmbed(link) {
-  if (!link) return "";
-  const match = link.match(/[-\w]{25,}/);
-  return match
-    ? `https://drive.google.com/file/d/${match[0]}/preview`
-    : "";
+// ✅ IMAGE: Google image CDN (WORKS EVERYWHERE)
+function driveImage(link) {
+  const id = getDriveId(link);
+  return id ? `https://lh3.googleusercontent.com/d/${id}` : "";
+}
+
+// ✅ VIDEO: Drive embed (ONLY correct way)
+function driveVideo(link) {
+  const id = getDriveId(link);
+  return id ? `https://drive.google.com/file/d/${id}/preview` : "";
 }
 
 /* ---------- SAFE CSV PARSER ---------- */
@@ -32,9 +33,8 @@ function parseCSV(text) {
   let insideQuotes = false;
 
   for (let char of text) {
-    if (char === '"') {
-      insideQuotes = !insideQuotes;
-    } else if (char === "," && !insideQuotes) {
+    if (char === '"') insideQuotes = !insideQuotes;
+    else if (char === "," && !insideQuotes) {
       row.push(value);
       value = "";
     } else if (char === "\n" && !insideQuotes) {
@@ -42,14 +42,14 @@ function parseCSV(text) {
       rows.push(row);
       row = [];
       value = "";
-    } else {
-      value += char;
-    }
+    } else value += char;
   }
+
   if (value) {
     row.push(value);
     rows.push(row);
   }
+
   return rows;
 }
 
@@ -60,27 +60,21 @@ fetch(SHEET_CSV_URL)
   .then(text => {
     const rows = parseCSV(text);
 
-    // 🔥 Trim & normalize headers
     const headers = rows[0].map(h => h.trim());
-
     const index = name =>
-      headers.findIndex(
-        h => h.toLowerCase() === name.toLowerCase()
-      );
+      headers.findIndex(h => h.toLowerCase() === name.toLowerCase());
 
     rows.slice(1).forEach(row => {
       if (!row.length) return;
 
-      const car = {
+      allCars.push({
         name: row[index("Car Name")] || "",
         price: row[index("Price")] || "",
         fuel: row[index("Fuel Type")] || "",
         year: row[index("Year")] || "",
         image: row[index("Car Front Photo")] || "",
         video: row[index("Full Car Video")] || ""
-      };
-
-      allCars.push(car);
+      });
     });
 
     renderCars(allCars);
@@ -97,7 +91,10 @@ function renderCars(data) {
       <div class="car-card" onclick="openModal(${i})">
         ${
           car.image
-            ? `<img src="${fastDriveImage(car.image)}" loading="lazy">`
+            ? `<img src="${driveImage(car.image)}"
+                   loading="lazy"
+                   style="width:100%;height:160px;object-fit:cover;"
+                   onerror="this.style.display='none'">`
             : `<div style="height:160px;background:#ddd;"></div>`
         }
         <h2>${car.name}</h2>
@@ -122,17 +119,17 @@ function openModal(i) {
 
   if (car.image) {
     box.innerHTML += `
-      <img src="${fastDriveImage(car.image)}"
-           style="width:100%;border-radius:8px;">
+      <img src="${driveImage(car.image)}"
+           style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;"
+           onerror="this.style.display='none'">
     `;
   }
 
   if (car.video) {
     box.innerHTML += `
       <iframe
-        src="${driveVideoEmbed(car.video)}"
-        style="width:100%;height:300px;margin-top:12px;border-radius:8px;"
-        allow="autoplay"
+        src="${driveVideo(car.video)}"
+        style="width:100%;height:300px;margin-top:12px;border:none;border-radius:8px;"
         allowfullscreen>
       </iframe>
     `;
@@ -149,8 +146,7 @@ function closeModal() {
 
 document.getElementById("search").addEventListener("keyup", e => {
   const v = e.target.value.toLowerCase();
-  renderCars(
-    allCars.filter(c => c.name.toLowerCase().includes(v))
-  );
+  renderCars(allCars.filter(c =>
+    c.name.toLowerCase().includes(v)
+  ));
 });
-
