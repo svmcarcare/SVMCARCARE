@@ -45,9 +45,14 @@ fetch(SHEET_CSV_URL)
   .then(res => res.text())
   .then(text => {
     const rows = parseCSV(text);
-    const headers = rows[0];
 
-    const index = name => headers.indexOf(name);
+    // 🔥 FIX: trim header names
+    const headers = rows[0].map(h => h.trim());
+
+    const index = name =>
+      headers.findIndex(
+        h => h.toLowerCase() === name.toLowerCase()
+      );
 
     rows.slice(1).forEach(row => {
       if (!row.length) return;
@@ -118,3 +123,4 @@ document.getElementById("search").addEventListener("keyup", e => {
   const v = e.target.value.toLowerCase();
   renderCars(allCars.filter(c => c.name.toLowerCase().includes(v)));
 });
+
