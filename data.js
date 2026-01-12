@@ -1,3 +1,7 @@
+const SHEET_URL = "PASTE_YOUR_CSV_LINK_HERE";
+
+let allCars = [];
+
 function fastDriveImage(link) {
   if (!link) return "";
   const match = link.match(/[-\w]{25,}/);
@@ -5,10 +9,6 @@ function fastDriveImage(link) {
     ? `https://drive.google.com/uc?export=view&id=${match[0]}`
     : "";
 }
-// 🔴 PASTE YOUR GOOGLE SHEET CSV LINK HERE
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8H-DC4LQVHXCafnvXSEKAUJmATXxiMt1oBq970MPdNNieJggl8hm1kC8qfTSwXLWw5trZ3BCYTSDD/pub?output=csv";
-
-let allCars = [];
 
 fetch(SHEET_URL)
   .then(res => res.text())
@@ -17,7 +17,6 @@ fetch(SHEET_URL)
 
     rows.forEach(row => {
       if (!row) return;
-
       const cols = row.split(",");
 
       const car = {
@@ -25,7 +24,14 @@ fetch(SHEET_URL)
         price: cols[2],
         fuel: cols[3],
         year: cols[4],
-        image: cols[5]   // front photo (Drive link later)
+
+        // MULTIPLE IMAGE FIELDS (comma separated links)
+        images: [
+          cols[5],
+          cols[6],
+          cols[7],
+          cols[8]
+        ].filter(Boolean)
       };
 
       allCars.push(car);
@@ -38,10 +44,10 @@ function renderCars(data) {
   const container = document.getElementById("cars");
   container.innerHTML = "";
 
-  data.forEach(car => {
+  data.forEach((car, index) => {
     container.innerHTML += `
-      <div class="car-card">
-       <img src="${fastDriveImage(car.image)}" loading="lazy">
+      <div class="car-card" onclick="openModal(${index})">
+        <img src="${fastDriveImage(car.images[0])}" loading="lazy">
         <h2>${car.name}</h2>
         <p>${car.price}</p>
         <p>${car.fuel} • ${car.year}</p>
@@ -50,7 +56,33 @@ function renderCars(data) {
   });
 }
 
-// SEARCH
+/* ===== MODAL FUNCTIONS ===== */
+
+function openModal(index) {
+  const car = allCars[index];
+
+  document.getElementById("modalTitle").innerText = car.name;
+  document.getElementById("modalInfo").innerText =
+    `${car.price} • ${car.fuel} • ${car.year}`;
+
+  const imgBox = document.getElementById("modalImages");
+  imgBox.innerHTML = "";
+
+  car.images.forEach(img => {
+    imgBox.innerHTML += `
+      <img src="${fastDriveImage(img)}"
+           style="width:100%;border-radius:8px;">
+    `;
+  });
+
+  document.getElementById("carModal").style.display = "block";
+}
+
+function closeModal() {
+  document.getElementById("carModal").style.display = "none";
+}
+
+/* SEARCH */
 document.getElementById("search").addEventListener("keyup", e => {
   const value = e.target.value.toLowerCase();
   const filtered = allCars.filter(c =>
@@ -58,4 +90,3 @@ document.getElementById("search").addEventListener("keyup", e => {
   );
   renderCars(filtered);
 });
-
