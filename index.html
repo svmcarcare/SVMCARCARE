@@ -2,16 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<!-- 🔥 MOST IMPORTANT FOR MOBILE -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>SVM Car Marketplace</title>
 
 <style>
 /* ===== RESET ===== */
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
 }
 
-/* ===== HERO SECTION ===== */
+/* ===== HERO ===== */
 .hero {
     height: 60vh;
     background: url("Background.jpeg") no-repeat center center;
@@ -31,7 +39,7 @@ body {
     z-index: 1;
     color: white;
     text-align: center;
-    padding-top: 40px;
+    padding: 40px 20px;
 }
 
 .hero h1 {
@@ -40,13 +48,15 @@ body {
     letter-spacing: 1px;
 }
 
+/* ===== SEARCH ===== */
 #search {
     margin-top: 20px;
-    width: 300px;
-    padding: 10px;
+    width: 320px;
+    max-width: 100%;
+    padding: 12px;
     border-radius: 6px;
     border: none;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 /* ===== CARS SECTION ===== */
@@ -104,6 +114,42 @@ footer {
     text-align: center;
     padding: 14px;
     font-size: 14px;
+}
+
+/* ================================================= */
+/* 📱 MOBILE OPTIMIZATION (THIS FIXES YOUR PROBLEM) */
+/* ================================================= */
+@media (max-width: 768px) {
+
+    .hero {
+        height: 45vh;
+    }
+
+    .hero h1 {
+        font-size: 22px;
+    }
+
+    #search {
+        width: 100%;
+        font-size: 15px;
+    }
+
+    .cars-section {
+        padding: 25px 12px;
+    }
+
+    .car-container {
+        grid-template-columns: 1fr; /* 🔥 ONE CARD PER ROW */
+        gap: 18px;
+    }
+
+    .car-card img {
+        height: 180px;
+    }
+
+    footer {
+        font-size: 13px;
+    }
 }
 </style>
 </head>
