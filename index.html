@@ -1,40 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Car Listings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVM CAR CARE Sales </title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* HERO */
+.hero {
+    height: 60vh;
+    background: url("Background.jpeg") no-repeat center center;
+    background-size: cover;
+    position: relative;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+/* SEARCH */
+#search {
+    margin-top: 20px;
+    width: 320px;
+    max-width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+}
+
+/* CARS SECTION */
+.cars-section {
+    background: #f5f6f8;
+    padding: 40px 20px;
+}
+
+.car-wrapper {
+    max-width: 1100px;
+    margin: auto;
+}
+
+.car-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.car-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.car-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #ddd;
+}
+
+.car-card h2 {
+    margin: 10px;
+    font-size: 17px;
+}
+
+.car-card p {
+    margin: 4px 10px 10px;
+    font-size: 14px;
+    color: #444;
+}
+
+/* FOOTER */
+footer {
+    background: #111;
+    color: white;
+    text-align: center;
+    padding: 14px;
+    font-size: 14px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .hero { height: 45vh; }
+    .hero h1 { font-size: 22px; }
+    .car-container { grid-template-columns: 1fr; }
+}
+</style>
 </head>
+
 <body>
 
-<h1>Available Cars</h1>
-<div id="cars"></div>
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-content">
+        <h1>SVM Car Marketplace</h1>
+        <input id="search" type="text" placeholder="Search cars..." />
+    </div>
+</div>
 
-<script>
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8H-DC4LQVHXCafnvXSEKAUJmATXxiMt1oBq970MPdNNieJggl8hm1kC8qfTSwXLWw5trZ3BCYTSDD/pub?output=csv";
+<!-- CARS -->
+<section class="cars-section">
+    <div class="car-wrapper">
+        <div class="car-container" id="cars"></div>
+    </div>
+</section>
 
-fetch(sheetURL)
-  .then(res => res.text())
-  .then(text => {
-    const rows = text.split("\n").slice(1);
-    rows.forEach(row => {
-      if (!row) return;
-      const cols = row.split(",");
-      const carName = cols[1];
-      const price = cols[2];
-      const fuel = cols[3];
-      const year = cols[4];
+<footer>
+    © 2026 SVM Car Care • View Only
+</footer>
 
-      document.getElementById("cars").innerHTML += `
-        <div style="border:1px solid #ccc; padding:10px; margin:10px">
-          <h3>${carName}</h3>
-          <p>Price: ${price}</p>
-          <p>${fuel} • ${year}</p>
-        </div>
-      `;
-    });
-  });
-</script>
+<!-- ONLY DATA CONNECTION -->
+<script src="data.js"></script>
 
 </body>
 </html>
-
