@@ -110,6 +110,43 @@ footer {
     .car-container { grid-template-columns: 1fr; }
 }
 </style>
+    <!-- CAR DETAIL MODAL -->
+<div id="carModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  z-index:1000;
+  overflow:auto;
+">
+
+  <div style="
+    background:white;
+    max-width:900px;
+    margin:40px auto;
+    padding:20px;
+    border-radius:10px;
+  ">
+    <button onclick="closeModal()" style="
+      float:right;
+      font-size:18px;
+      border:none;
+      background:none;
+      cursor:pointer;
+    ">✖</button>
+
+    <h2 id="modalTitle"></h2>
+    <p id="modalInfo"></p>
+
+    <div id="modalImages" style="
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:10px;
+      margin-top:15px;
+    "></div>
+  </div>
+</div>
+
 </head>
 
 <body>
@@ -138,5 +175,6 @@ footer {
 
 </body>
 </html>
+
 
 
