@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Car Marketplace</title>
+<title>SVM Car Marketplace</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f4f6f9;
+    background: url("Background.jpeg") no-repeat center center fixed;
+    background-size: cover;
 }
 
 h1 {
     text-align: center;
     padding: 20px;
+    color: white;
+    text-shadow: 2px 2px 10px black;
 }
 
 #search {
@@ -22,22 +25,28 @@ h1 {
     width: 320px;
     padding: 12px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: none;
     font-size: 16px;
+}
+
+.car-wrapper {
+    background: rgba(255, 255, 255, 0.9);
+    margin: 0 20px;
+    border-radius: 20px;
+    padding: 20px;
 }
 
 .car-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
-    padding: 20px;
 }
 
 .car-card {
     background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     transition: transform 0.3s;
 }
 
@@ -63,9 +72,9 @@ h1 {
 footer {
     text-align: center;
     padding: 15px;
-    background: #111;
+    margin-top: 30px;
+    background: rgba(0,0,0,0.7);
     color: white;
-    margin-top: 20px;
 }
 </style>
 </head>
@@ -81,7 +90,9 @@ footer {
     onkeyup="searchCars()"
 />
 
-<div class="car-container" id="cars"></div>
+<div class="car-wrapper">
+    <div class="car-container" id="cars"></div>
+</div>
 
 <footer>
     © 2026 SVM Car Care • View Only
