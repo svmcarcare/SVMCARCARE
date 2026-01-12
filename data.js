@@ -64,24 +64,28 @@ fetch(SHEET_CSV_URL)
       headers.findIndex(h => h.toLowerCase() === name.toLowerCase());
 
     rows.slice(1).forEach(row => {
-      if (!row.length) return;
+  if (!row.length) return;
 
-      // 🔥 SPLIT MULTIPLE IMAGE LINKS
-      const rawImages = row[index("Car Front Photo")] || "";
-      const imageLinks = rawImages
-        .split(",")
-        .map(l => l.trim())
-        .filter(Boolean);
+  const name = (row[index("Car Name")] || "").trim();
+  const rawImages = row[index("Car Front Photo")] || "";
 
-      allCars.push({
-        name: row[index("Car Name")] || "",
-        price: row[index("Price")] || "",
-        fuel: row[index("Fuel Type")] || "",
-        year: row[index("Year")] || "",
-        images: imageLinks,
-        video: row[index("Full Car Video")] || ""
-      });
-    });
+  const imageLinks = rawImages
+    .split(",")
+    .map(l => l.trim())
+    .filter(Boolean);
+
+  // 🔥 SKIP EMPTY / DELETED ENTRIES
+  if (!name && imageLinks.length === 0) return;
+
+  allCars.push({
+    name,
+    price: row[index("Price")] || "",
+    fuel: row[index("Fuel Type")] || "",
+    year: row[index("Year")] || "",
+    images: imageLinks,
+    video: row[index("Full Car Video")] || ""
+  });
+});
 
     renderCars(allCars);
   });
@@ -165,3 +169,4 @@ document.getElementById("search").addEventListener("keyup", e => {
     c.name.toLowerCase().includes(v)
   ));
 });
+
