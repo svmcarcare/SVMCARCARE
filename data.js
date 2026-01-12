@@ -3,8 +3,10 @@ const SHEET_CSV_URL =
 
 let allCars = [];
 
-// Convert Google Drive link → direct link
-function fastDriveLink(link) {
+/* ---------- GOOGLE DRIVE HELPERS ---------- */
+
+// Image: Drive → direct view
+function fastDriveImage(link) {
   if (!link) return "";
   const match = link.match(/[-\w]{25,}/);
   return match
@@ -12,41 +14,53 @@ function fastDriveLink(link) {
     : "";
 }
 
-// Safe CSV parser (handles commas in links)
+// Video: Drive → embed preview
+function driveVideoEmbed(link) {
+  if (!link) return "";
+  const match = link.match(/[-\w]{25,}/);
+  return match
+    ? `https://drive.google.com/file/d/${match[0]}/preview`
+    : "";
+}
+
+/* ---------- SAFE CSV PARSER ---------- */
+
 function parseCSV(text) {
   const rows = [];
-  let current = [];
+  let row = [];
   let value = "";
   let insideQuotes = false;
 
   for (let char of text) {
-    if (char === '"' ) {
+    if (char === '"') {
       insideQuotes = !insideQuotes;
     } else if (char === "," && !insideQuotes) {
-      current.push(value);
+      row.push(value);
       value = "";
     } else if (char === "\n" && !insideQuotes) {
-      current.push(value);
-      rows.push(current);
-      current = [];
+      row.push(value);
+      rows.push(row);
+      row = [];
       value = "";
     } else {
       value += char;
     }
   }
   if (value) {
-    current.push(value);
-    rows.push(current);
+    row.push(value);
+    rows.push(row);
   }
   return rows;
 }
+
+/* ---------- FETCH & MAP DATA ---------- */
 
 fetch(SHEET_CSV_URL)
   .then(res => res.text())
   .then(text => {
     const rows = parseCSV(text);
 
-    // 🔥 FIX: trim header names
+    // 🔥 Trim & normalize headers
     const headers = rows[0].map(h => h.trim());
 
     const index = name =>
@@ -58,12 +72,12 @@ fetch(SHEET_CSV_URL)
       if (!row.length) return;
 
       const car = {
-        name: row[index("Car Name")],
-        price: row[index("Price")],
-        fuel: row[index("Fuel Type")],
-        year: row[index("Year")],
-        image: row[index("Car Front Photo")],
-        video: row[index("Full Car Video")]
+        name: row[index("Car Name")] || "",
+        price: row[index("Price")] || "",
+        fuel: row[index("Fuel Type")] || "",
+        year: row[index("Year")] || "",
+        image: row[index("Car Front Photo")] || "",
+        video: row[index("Full Car Video")] || ""
       };
 
       allCars.push(car);
@@ -72,7 +86,8 @@ fetch(SHEET_CSV_URL)
     renderCars(allCars);
   });
 
-// Render cards
+/* ---------- RENDER CAR CARDS ---------- */
+
 function renderCars(data) {
   const container = document.getElementById("cars");
   container.innerHTML = "";
@@ -80,7 +95,11 @@ function renderCars(data) {
   data.forEach((car, i) => {
     container.innerHTML += `
       <div class="car-card" onclick="openModal(${i})">
-${car.image ? `<img src="${fastDriveLink(car.image)}" loading="lazy">` : ""}
+        ${
+          car.image
+            ? `<img src="${fastDriveImage(car.image)}" loading="lazy">`
+            : `<div style="height:160px;background:#ddd;"></div>`
+        }
         <h2>${car.name}</h2>
         <p>₹${car.price}</p>
         <p>${car.fuel} • ${car.year}</p>
@@ -89,7 +108,8 @@ ${car.image ? `<img src="${fastDriveLink(car.image)}" loading="lazy">` : ""}
   });
 }
 
-// Modal
+/* ---------- MODAL ---------- */
+
 function openModal(i) {
   const car = allCars[i];
 
@@ -98,16 +118,23 @@ function openModal(i) {
     `₹${car.price} • ${car.fuel} • ${car.year}`;
 
   const box = document.getElementById("modalImages");
-  box.innerHTML = `
-    <img src="${fastDriveLink(car.image)}"
-         style="width:100%;border-radius:8px;">
-  `;
+  box.innerHTML = "";
+
+  if (car.image) {
+    box.innerHTML += `
+      <img src="${fastDriveImage(car.image)}"
+           style="width:100%;border-radius:8px;">
+    `;
+  }
 
   if (car.video) {
     box.innerHTML += `
-      <video controls style="width:100%;margin-top:10px;border-radius:8px;">
-        <source src="${fastDriveLink(car.video)}">
-      </video>
+      <iframe
+        src="${driveVideoEmbed(car.video)}"
+        style="width:100%;height:300px;margin-top:12px;border-radius:8px;"
+        allow="autoplay"
+        allowfullscreen>
+      </iframe>
     `;
   }
 
@@ -118,10 +145,11 @@ function closeModal() {
   document.getElementById("carModal").style.display = "none";
 }
 
-// Search
+/* ---------- SEARCH ---------- */
+
 document.getElementById("search").addEventListener("keyup", e => {
   const v = e.target.value.toLowerCase();
-  renderCars(allCars.filter(c => c.name.toLowerCase().includes(v)));
+  renderCars(
+    allCars.filter(c => c.name.toLowerCase().includes(v))
+  );
 });
-
-
