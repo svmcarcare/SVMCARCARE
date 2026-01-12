@@ -80,7 +80,7 @@ function renderCars(data) {
   data.forEach((car, i) => {
     container.innerHTML += `
       <div class="car-card" onclick="openModal(${i})">
-        <img src="${fastDriveLink(car.image)}" loading="lazy">
+${car.image ? `<img src="${fastDriveLink(car.image)}" loading="lazy">` : ""}
         <h2>${car.name}</h2>
         <p>₹${car.price}</p>
         <p>${car.fuel} • ${car.year}</p>
@@ -123,4 +123,5 @@ document.getElementById("search").addEventListener("keyup", e => {
   const v = e.target.value.toLowerCase();
   renderCars(allCars.filter(c => c.name.toLowerCase().includes(v)));
 });
+
 
