@@ -5,6 +5,7 @@
 <title>SVM Car Marketplace</title>
 
 <style>
+/* ===== GLOBAL ===== */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -12,9 +13,9 @@ body {
     background-size: cover;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 header {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.65);
     padding: 14px;
     text-align: center;
     position: sticky;
@@ -26,13 +27,13 @@ header h1 {
     margin: 0;
     color: white;
     font-size: 26px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    letter-spacing: 1px;
 }
 
-/* SEARCH */
+/* ===== SEARCH ===== */
 #search {
     display: block;
-    margin: 20px auto;
+    margin: 22px auto;
     width: 300px;
     padding: 10px;
     border-radius: 6px;
@@ -40,53 +41,60 @@ header h1 {
     font-size: 15px;
 }
 
-/* ✅ MAIN FIX: CENTER + LIMIT WIDTH */
+/* ===== MAIN WRAPPER (KEY FIX) ===== */
 .car-wrapper {
-    background: rgba(255, 255, 255, 0.82);
-    max-width: 1200px;      /* 🔥 limits middle width */
-    margin: 0 auto 30px;    /* 🔥 centers it */
+    background: rgba(255, 255, 255, 0.78);
+    max-width: 1000px;      /* STRONG LIMIT */
+    margin: 0 auto 40px;
     border-radius: 14px;
     padding: 16px;
 }
 
+/* ===== GRID ===== */
 .car-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    justify-content: center;
 }
 
-/* CAR CARD */
+/* ===== CARD ===== */
 .car-card {
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    max-width: 240px;      /* PREVENT BIG BLOCKS */
+    margin: auto;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .car-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
 }
 
+/* ===== IMAGE ===== */
 .car-card img {
     width: 100%;
-    height: 180px;
+    height: 150px;
     object-fit: cover;
+    background: #eaeaea; /* fallback if image fails */
 }
 
+/* ===== TEXT ===== */
 .car-card h2 {
     margin: 8px 10px 4px;
-    font-size: 18px;
+    font-size: 17px;
 }
 
 .car-card p {
     margin: 4px 10px 8px;
-    color: #444;
     font-size: 14px;
+    color: #444;
 }
 
-/* FOOTER */
+/* ===== FOOTER ===== */
 footer {
     text-align: center;
     padding: 12px;
@@ -125,28 +133,28 @@ const carsData = [
         price: "₹7,50,000",
         fuel: "Petrol",
         year: 2022,
-        image: "https://source.unsplash.com/400x250/?hyundai-car"
+        image: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a"
     },
     {
         name: "Honda City",
         price: "₹11,00,000",
         fuel: "Petrol",
         year: 2021,
-        image: "https://source.unsplash.com/400x250/?honda-car"
+        image: "https://images.unsplash.com/photo-1617531653520-4893f4fdf9f0"
     },
     {
         name: "Tata Nexon",
         price: "₹9,20,000",
         fuel: "Diesel",
         year: 2023,
-        image: "https://source.unsplash.com/400x250/?tata-car"
+        image: "https://images.unsplash.com/photo-1624804269473-828f7de3aaf1"
     },
     {
         name: "Maruti Swift",
         price: "₹6,80,000",
         fuel: "Petrol",
         year: 2020,
-        image: "https://source.unsplash.com/400x250/?maruti-car"
+        image: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2"
     }
 ];
 
@@ -156,7 +164,7 @@ function displayCars(data) {
     data.forEach(car => {
         container.innerHTML += `
             <div class="car-card">
-                <img src="${car.image}">
+                <img src="${car.image}" alt="${car.name}">
                 <h2>${car.name}</h2>
                 <p>${car.price}</p>
                 <p>${car.fuel} • ${car.year}</p>
@@ -170,11 +178,4 @@ function searchCars() {
     const filtered = carsData.filter(car =>
         car.name.toLowerCase().includes(value)
     );
-    displayCars(filtered);
-}
-
-displayCars(carsData);
-</script>
-
-</body>
-</html>
+    dis
