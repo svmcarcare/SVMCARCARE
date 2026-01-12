@@ -153,3 +153,4 @@ document.getElementById("search").addEventListener("keyup", e => {
     allCars.filter(c => c.name.toLowerCase().includes(v))
   );
 });
+
