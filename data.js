@@ -5,26 +5,25 @@ let allCars = [];
 
 /* ---------- GOOGLE DRIVE HELPERS ---------- */
 
-// Extract Drive file ID
 function getDriveId(link) {
   if (!link) return "";
   const match = link.match(/[-\w]{25,}/);
   return match ? match[0] : "";
 }
 
-// ✅ IMAGE: Google image CDN (WORKS EVERYWHERE)
+// Google image CDN (works on mobile)
 function driveImage(link) {
   const id = getDriveId(link);
   return id ? `https://lh3.googleusercontent.com/d/${id}` : "";
 }
 
-// ✅ VIDEO: Drive embed (ONLY correct way)
+// Drive video embed
 function driveVideo(link) {
   const id = getDriveId(link);
   return id ? `https://drive.google.com/file/d/${id}/preview` : "";
 }
 
-/* ---------- SAFE CSV PARSER ---------- */
+/* ---------- CSV PARSER ---------- */
 
 function parseCSV(text) {
   const rows = [];
@@ -67,12 +66,19 @@ fetch(SHEET_CSV_URL)
     rows.slice(1).forEach(row => {
       if (!row.length) return;
 
+      // 🔥 SPLIT MULTIPLE IMAGE LINKS
+      const rawImages = row[index("Car Front Photo")] || "";
+      const imageLinks = rawImages
+        .split(",")
+        .map(l => l.trim())
+        .filter(Boolean);
+
       allCars.push({
         name: row[index("Car Name")] || "",
         price: row[index("Price")] || "",
         fuel: row[index("Fuel Type")] || "",
         year: row[index("Year")] || "",
-        image: row[index("Car Front Photo")] || "",
+        images: imageLinks,
         video: row[index("Full Car Video")] || ""
       });
     });
@@ -87,14 +93,17 @@ function renderCars(data) {
   container.innerHTML = "";
 
   data.forEach((car, i) => {
+    const thumbnail = car.images[0]
+      ? driveImage(car.images[0])
+      : "";
+
     container.innerHTML += `
       <div class="car-card" onclick="openModal(${i})">
         ${
-          car.image
-            ? `<img src="${driveImage(car.image)}"
+          thumbnail
+            ? `<img src="${thumbnail}"
                    loading="lazy"
-                   style="width:100%;height:160px;object-fit:cover;"
-                   onerror="this.style.display='none'">`
+                   style="width:100%;height:160px;object-fit:cover;">`
             : `<div style="height:160px;background:#ddd;"></div>`
         }
         <h2>${car.name}</h2>
@@ -117,19 +126,25 @@ function openModal(i) {
   const box = document.getElementById("modalImages");
   box.innerHTML = "";
 
-  if (car.image) {
+  // 🔥 SHOW ALL IMAGES
+  car.images.forEach(img => {
     box.innerHTML += `
-      <img src="${driveImage(car.image)}"
-           style="width:100%;max-height:320px;object-fit:contain;border-radius:8px;"
-           onerror="this.style.display='none'">
+      <img src="${driveImage(img)}"
+           style="width:100%;max-height:320px;
+                  object-fit:contain;
+                  margin-bottom:10px;
+                  border-radius:8px;">
     `;
-  }
+  });
 
   if (car.video) {
     box.innerHTML += `
       <iframe
         src="${driveVideo(car.video)}"
-        style="width:100%;height:300px;margin-top:12px;border:none;border-radius:8px;"
+        style="width:100%;height:300px;
+               margin-top:12px;
+               border:none;
+               border-radius:8px;"
         allowfullscreen>
       </iframe>
     `;
