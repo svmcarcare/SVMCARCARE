@@ -3,7 +3,7 @@ const SHEET_CSV_URL =
 
 let allCars = [];
 
-/* ---------- GOOGLE DRIVE HELPERS ---------- */
+/* ---------- DRIVE HELPERS ---------- */
 
 function getDriveId(link) {
   if (!link) return "";
@@ -11,103 +11,78 @@ function getDriveId(link) {
   return match ? match[0] : "";
 }
 
-// Google image CDN (works on mobile)
 function driveImage(link) {
   const id = getDriveId(link);
   return id ? `https://lh3.googleusercontent.com/d/${id}` : "";
 }
 
-// Drive video embed
 function driveVideo(link) {
   const id = getDriveId(link);
   return id ? `https://drive.google.com/file/d/${id}/preview` : "";
 }
 
-/* ---------- CSV PARSER ---------- */
+/* ---------- SAFE CSV PARSER ---------- */
 
 function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let value = "";
-  let insideQuotes = false;
-
-  for (let char of text) {
-    if (char === '"') insideQuotes = !insideQuotes;
-    else if (char === "," && !insideQuotes) {
-      row.push(value);
-      value = "";
-    } else if (char === "\n" && !insideQuotes) {
-      row.push(value);
-      rows.push(row);
-      row = [];
-      value = "";
-    } else value += char;
-  }
-
-  if (value) {
-    row.push(value);
-    rows.push(row);
-  }
-
-  return rows;
+  return text
+    .trim()
+    .split("\n")
+    .map(row =>
+      row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
+        ?.map(cell => cell.replace(/^"|"$/g, "").trim()) || []
+    );
 }
 
-/* ---------- FETCH & MAP DATA ---------- */
+/* ---------- FETCH DATA ---------- */
 
 fetch(SHEET_CSV_URL)
   .then(res => res.text())
   .then(text => {
     const rows = parseCSV(text);
+    const headers = rows[0];
 
-    const headers = rows[0].map(h => h.trim());
     const index = name =>
       headers.findIndex(h => h.toLowerCase() === name.toLowerCase());
 
     rows.slice(1).forEach(row => {
-  if (!row.length) return;
+      const name = row[index("Car Name")] || "";
+      if (!name) return;
 
-  const name = (row[index("Car Name")] || "").trim();
-  const rawImages = row[index("Car Front Photo")] || "";
+      const imagesRaw = row[index("Car Front Photo")] || "";
 
-  const imageLinks = rawImages
-    .split(",")
-    .map(l => l.trim())
-    .filter(Boolean);
+      const images = imagesRaw
+        .split(",")
+        .map(l => l.trim())
+        .filter(Boolean);
 
-  // 🔥 SKIP EMPTY / DELETED ENTRIES
-  if (!name && imageLinks.length === 0) return;
-
-  allCars.push({
-    name,
-    price: row[index("Price")] || "",
-    fuel: row[index("Fuel Type")] || "",
-    year: row[index("Year")] || "",
-    images: imageLinks,
-    video: row[index("Full Car Video")] || ""
-  });
-});
+      allCars.push({
+        name,
+        price: row[index("Price")] || "",
+        fuel: row[index("Fuel Type")] || "",
+        year: row[index("Year")] || "",
+        images,
+        video: row[index("Full Car Video")] || ""
+      });
+    });
 
     renderCars(allCars);
   });
 
-/* ---------- RENDER CAR CARDS ---------- */
+/* ---------- RENDER ---------- */
 
 function renderCars(data) {
   const container = document.getElementById("cars");
   container.innerHTML = "";
 
   data.forEach((car, i) => {
-    const thumbnail = car.images[0]
-      ? driveImage(car.images[0])
-      : "";
+    const thumb = car.images[0] ? driveImage(car.images[0]) : "";
 
     container.innerHTML += `
       <div class="car-card" onclick="openModal(${i})">
         ${
-          thumbnail
-            ? `<img src="${thumbnail}"
-                   loading="lazy"
-                   style="width:100%;height:160px;object-fit:cover;">`
+          thumb
+            ? `<img src="${thumb}" loading="lazy"
+                 style="width:100%;height:160px;object-fit:cover;">`
             : `<div style="height:160px;background:#ddd;"></div>`
         }
         <h2>${car.name}</h2>
@@ -130,7 +105,6 @@ function openModal(i) {
   const box = document.getElementById("modalImages");
   box.innerHTML = "";
 
-  // 🔥 SHOW ALL IMAGES
   car.images.forEach(img => {
     box.innerHTML += `
       <img src="${driveImage(img)}"
@@ -143,8 +117,7 @@ function openModal(i) {
 
   if (car.video) {
     box.innerHTML += `
-      <iframe
-        src="${driveVideo(car.video)}"
+      <iframe src="${driveVideo(car.video)}"
         style="width:100%;height:300px;
                margin-top:12px;
                border:none;
@@ -169,4 +142,3 @@ document.getElementById("search").addEventListener("keyup", e => {
     c.name.toLowerCase().includes(v)
   ));
 });
-
